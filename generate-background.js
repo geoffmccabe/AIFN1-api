@@ -1,26 +1,44 @@
+const express = require('express');
 const fetch = require('node-fetch');
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://opensea.io');
-  const { prompt, size, count } = req.body;
+const app = express();
 
-  const backgrounds = [];
-  for (let i = 0; i < count; i++) {
-    const seed = Math.floor(Math.random() * 1000000);
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
+app.get('/', async (req, res) => {
+  try {
+    const basePrompt = "A futuristic cityscape at night with neon lights";
+    const userPrompt = req.query.prompt || "";
+    const fullPrompt = `${basePrompt}${userPrompt ? ", " + userPrompt : ""}`;
+
     const response = await fetch('https://api-inference.huggingface.co/models/LightningWorks/shiyangv1', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${process.env.HUGGING_FACE_TOKEN}`,
+        'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ inputs: prompt, parameters: { size: size === '600x600' ? '600x600' : '2048x2048', seed } })
+      body: JSON.stringify({ inputs: fullPrompt })
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate image from Hugging Face');
+    }
+
     const imageBuffer = await response.buffer();
-    backgrounds.push({
-      url: `data:image/png;base64,${imageBuffer.toString('base64')}`,
-      prompt,
-      seed
+    const imageUrl = `data:image/webp;base64,${imageBuffer.toString('base64')}`;
+
+    res.json({
+      imageUrl: imageUrl,
+      metadata: fullPrompt
     });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to generate background: ' + error.message });
   }
-  res.json({ backgrounds });
-};
+});
+
+module.exports = app;
