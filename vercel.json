@@ -8,16 +8,6 @@
   ],
   "routes": [
     {
-      "src": "/api/generate-background",
-      "dest": "/index.js",
-      "methods": ["GET"]
-    },
-    {
-      "src": "/api/upload-to-arweave",
-      "dest": "/index.js",
-      "methods": ["POST"]
-    },
-    {
       "src": "/(.*)",
       "dest": "/index.js"
     }
