@@ -16,6 +16,10 @@
       "src": "/api/upload-to-arweave",
       "dest": "/index.js",
       "methods": ["POST"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.js"
     }
   ],
   "headers": [
