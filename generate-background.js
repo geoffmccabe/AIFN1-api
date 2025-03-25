@@ -12,6 +12,11 @@ app.use((req, res, next) => {
 
 app.get('/', async (req, res) => {
   try {
+    if (!process.env.HUGGINGFACE_API_KEY) {
+      console.error('HUGGINGFACE_API_KEY is not set');
+      return res.status(500).json({ error: 'HUGGINGFACE_API_KEY is not set' });
+    }
+
     const basePrompt = "A futuristic cityscape at night with neon lights";
     const userPrompt = req.query.prompt || "";
     const fullPrompt = `${basePrompt}${userPrompt ? ", " + userPrompt : ""}`;
@@ -28,7 +33,9 @@ app.get('/', async (req, res) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Hugging Face API error: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`Hugging Face API error: ${response.statusText}, ${errorText}`);
+      throw new Error(`Hugging Face API error: ${response.statusText}, ${errorText}`);
     }
 
     const imageBuffer = await response.buffer();
