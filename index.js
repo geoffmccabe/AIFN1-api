@@ -30,25 +30,19 @@ module.exports = async (req, res) => {
 
       console.log(`Generating background with prompt: ${fullPrompt}`);
 
-      const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev', {
+      const response = await fetch('https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: fullPrompt,
-          parameters: {
-            num_inference_steps: 50,
-            guidance_scale: 7.5,
-            height: 512,
-            width: 512,
-            negative_prompt: "low quality, blurry, distorted, extra limbs, missing details"
-          }
+          inputs: fullPrompt
         })
       });
 
       console.log('Hugging Face API response status:', response.status);
+      console.log('Hugging Face API response headers:', JSON.stringify([...response.headers]));
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`Hugging Face API error: ${response.statusText}, ${errorText}`);
