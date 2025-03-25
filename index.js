@@ -1,4 +1,4 @@
-export default (req, res) => {
+const handler = (req, res) => {
   console.log('Received request:', req.url);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
@@ -15,3 +15,5 @@ export default (req, res) => {
     res.status(404).json({ error: 'Not found' });
   }
 };
+
+module.exports = handler;
