@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
 
       console.log(`Generating background with prompt: ${fullPrompt}`);
 
-      const response = await fetch('https://api-inference.huggingface.co/models/LightningWorks/shiyangv1', {
+      const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
@@ -39,11 +39,11 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           inputs: fullPrompt,
           parameters: {
-            num_inference_steps: 50,  // Common for Flux.1 models
-            guidance_scale: 7.5,      // Common for Flux.1 models
-            height: 512,              // Standard resolution
+            num_inference_steps: 50,
+            guidance_scale: 7.5,
+            height: 512,
             width: 512,
-            negative_prompt: "low quality, blurry, distorted, extra limbs, missing details" // Common negative prompt to improve quality
+            negative_prompt: "low quality, blurry, distorted, extra limbs, missing details"
           }
         })
       });
