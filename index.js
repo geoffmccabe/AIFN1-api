@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.url === '/api/generate-background') {
+  if (req.url.startsWith('/api/generate-background')) {
     try {
       console.log('Environment HUGGINGFACE_API_KEY:', process.env.HUGGINGFACE_API_KEY ? 'Set' : 'Not set');
       if (!process.env.HUGGINGFACE_API_KEY) {
@@ -30,14 +30,21 @@ module.exports = async (req, res) => {
 
       console.log(`Generating background with prompt: ${fullPrompt}`);
 
-      const response = await fetch('https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5', {
+      const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: fullPrompt
+          inputs: fullPrompt,
+          parameters: {
+            num_inference_steps: 50,
+            guidance_scale: 7.5,
+            height: 512,
+            width: 512,
+            negative_prompt: "low quality, blurry, distorted, extra limbs, missing details"
+          }
         })
       });
 
