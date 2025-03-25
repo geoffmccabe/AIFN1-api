@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 const app = express();
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://geoffmccabe.github.io');
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
@@ -16,6 +16,8 @@ app.get('/', async (req, res) => {
     const userPrompt = req.query.prompt || "";
     const fullPrompt = `${basePrompt}${userPrompt ? ", " + userPrompt : ""}`;
 
+    console.log(`Generating background with prompt: ${fullPrompt}`);
+
     const response = await fetch('https://api-inference.huggingface.co/models/LightningWorks/shiyangv1', {
       method: 'POST',
       headers: {
@@ -26,7 +28,7 @@ app.get('/', async (req, res) => {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to generate image from Hugging Face');
+      throw new Error(`Hugging Face API error: ${response.statusText}`);
     }
 
     const imageBuffer = await response.buffer();
@@ -37,6 +39,7 @@ app.get('/', async (req, res) => {
       metadata: fullPrompt
     });
   } catch (error) {
+    console.error('Error generating background:', error);
     res.status(500).json({ error: 'Failed to generate background: ' + error.message });
   }
 });
