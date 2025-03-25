@@ -1,13 +1,25 @@
 {
-  "name": "aifn1-api",
-  "version": "1.0.0",
-  "dependencies": {
-    "express": "^4.17.1",
-    "node-fetch": "^3.3.2",
-    "arweave": "^1.10.16",
-    "multer": "^1.4.5-lts.1"
-  },
-  "engines": {
-    "node": "18.x"
-  }
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+      ]
+    }
+  ]
 }
