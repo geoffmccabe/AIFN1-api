@@ -5,5 +5,8 @@
     "express": "^4.17.1",
     "node-fetch": "^3.3.2",
     "arweave": "^1.10.16"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
