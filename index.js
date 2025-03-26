@@ -38,13 +38,7 @@ module.exports = async (req, res) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: fullPrompt,
-          parameters: {
-            guidance_scale: 7.5,
-            num_inference_steps: 20,
-            height: 600,
-            width: 600
-          }
+          inputs: fullPrompt
         }),
         timeout: 50000 // 50 seconds timeout to leverage Vercel Pro's 60-second limit
       });
