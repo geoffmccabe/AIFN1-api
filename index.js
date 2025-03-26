@@ -39,13 +39,14 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           inputs: fullPrompt,
           parameters: {
-            num_inference_steps: 50,
+            num_inference_steps: 30, // Reduced to lower processing time
             guidance_scale: 7.5,
             height: 512,
             width: 512,
             negative_prompt: "low quality, blurry, distorted, extra limbs, missing details"
           }
-        })
+        }),
+        timeout: 15000 // 15 seconds timeout
       });
 
       console.log('Hugging Face API response status:', response.status);
