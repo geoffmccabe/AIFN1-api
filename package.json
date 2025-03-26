@@ -4,9 +4,7 @@
   "dependencies": {
     "node-fetch": "^2.6.1",
     "arweave": "^1.10.16",
-    "multer": "^1.4.5-lts.1"
-  },
-  "engines": {
-    "node": "18.x"
+    "multer": "^1.4.5-lts.1",
+    "@huggingface/inference": "^2.8.0"
   }
 }
