@@ -40,11 +40,12 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           inputs: fullPrompt,
           parameters: {
-            num_inference_steps: 30,
-            guidance_scale: 7.5,
-            height: 512,
-            width: 512,
-            negative_prompt: "low quality, blurry, distorted, extra limbs, missing details"
+            guidance_scale: 7.5, // Default value for prompt adherence
+            num_inference_steps: 20, // Reduced for faster generation
+            height: 600, // Updated to match project requirements
+            width: 600,  // Updated to match project requirements
+            negative_prompt: "blurry, cartoon, low resolution", // Exclude unwanted elements
+            safety_checker: false // Disable NSFW filter
           }
         }),
         timeout: 50000 // 50 seconds timeout to leverage Vercel Pro's 60-second limit
