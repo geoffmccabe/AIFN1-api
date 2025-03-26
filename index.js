@@ -26,11 +26,12 @@ module.exports = async (req, res) => {
 
       const basePrompt = "1girl, shiyang, ((((small breasts)))), (white skull belt buckle, front hair locks, black flat dragon tattoo on right shoulder, black flat dragon tattoo on right arm, red clothes, shoulder tattoo,:1.1), golden jewelry, long hair, earrings, black hair, golden hoop earrings, clothing cutout, ponytail, cleavage cutout, cleavage, bracelet, midriff, cheongsam top, red choli top, navel, makeup, holding, pirate pistol, lips, pirate gun, black shorts, looking at viewer, dynamic pose, ((asian girl)), action pose, (white skull belt buckle), black dragon tattoo on right shoulder, black dragon tattoo on right arm, ((shoulder tattoo))";
       const userPrompt = req.query.prompt || "";
-      const fullPrompt = `${basePrompt}${userPrompt ? ", " + userPrompt : ""}`;
+      const weightedUserPrompt = userPrompt ? `(((${userPrompt})))` : ""; // Add triple parentheses for weighting
+      const fullPrompt = `${basePrompt}${weightedUserPrompt ? ", " + weightedUserPrompt : ""}`;
 
       console.log(`Generating background with prompt: ${fullPrompt}`);
 
-      const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev', {
+      const response = await fetch('https://api-inference.huggingface.co/models/LightningWorks/shiyangv1', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
@@ -39,14 +40,14 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           inputs: fullPrompt,
           parameters: {
-            num_inference_steps: 30, // Reduced to lower processing time
+            num_inference_steps: 30,
             guidance_scale: 7.5,
             height: 512,
             width: 512,
             negative_prompt: "low quality, blurry, distorted, extra limbs, missing details"
           }
         }),
-        timeout: 15000 // 15 seconds timeout
+        timeout: 50000 // 50 seconds timeout to leverage Vercel Pro's 60-second limit
       });
 
       console.log('Hugging Face API response status:', response.status);
