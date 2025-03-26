@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const { HfInference } = require('@huggingface/inference');
 const Arweave = require('arweave');
 const multer = require('multer');
 
@@ -31,35 +31,23 @@ module.exports = async (req, res) => {
 
       console.log(`Generating background with prompt: ${fullPrompt}`);
 
-      const response = await fetch('https://api-inference.huggingface.co/models/LightningWorks/shiyangv1', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          inputs: fullPrompt,
-          parameters: {
-            guidance_scale: 7.5,
-            num_inference_steps: 20,
-            height: 600,
-            width: 600
-          }
-        }),
-        timeout: 50000 // 50 seconds timeout to leverage Vercel Pro's 60-second limit
+      // Initialize the Hugging Face Inference Client
+      const client = new HfInference(process.env.HUGGINGFACE_API_KEY);
+
+      // Use the textToImage method to explicitly specify the task
+      const imageBuffer = await client.textToImage({
+        model: 'LightningWorks/shiyangv1',
+        prompt: fullPrompt,
+        parameters: {
+          guidance_scale: 7.5,
+          num_inference_steps: 20,
+          height: 600,
+          width: 600
+        }
       });
 
-      console.log('Hugging Face API response status:', response.status);
-      console.log('Hugging Face API response headers:', JSON.stringify([...response.headers]));
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Hugging Face API error: ${response.statusText}, ${errorText}`);
-        return res.status(500).json({ error: `Hugging Face API error: ${response.statusText}, ${errorText}` });
-      }
-
-      // Use arrayBuffer instead of buffer for compatibility with node-fetch
-      const imageBuffer = await response.arrayBuffer();
-      const imageUrl = `data:image/webp;base64,${Buffer.from(imageBuffer).toString('base64')}`;
+      // Convert the image buffer to a base64 data URL
+      const imageUrl = `data:image/webp;base64,${imageBuffer.toString('base64')}`;
 
       res.status(200).json({
         imageUrl: imageUrl,
