@@ -6,18 +6,18 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/generate-background",
-      "destination": "/index.js"
+      "src": "/api/generate-background",
+      "dest": "/index.js"
     },
     {
-      "source": "/api/upload-to-arweave",
-      "destination": "/index.js"
+      "src": "/api/upload-to-arweave",
+      "dest": "/index.js"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.js"
+      "src": "/(.*)",
+      "dest": "/index.js"
     }
   ],
   "headers": [
