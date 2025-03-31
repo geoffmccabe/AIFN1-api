@@ -24,21 +24,27 @@ module.exports = async (req, res) => {
         return res.status(500).json({ error: 'HUGGINGFACE_API_KEY is not set' });
       }
 
-      const basePrompt = "1girl, shiyang, ((((small breasts)))), (white skull belt buckle, front hair locks, black flat dragon tattoo on right shoulder, black flat dragon tattoo on right arm, red clothes, shoulder tattoo,:1.1), golden jewelry, long hair, earrings, black hair, golden hoop earrings, clothing cutout, ponytail, cleavage cutout, cleavage, bracelet, midriff, cheongsam top, red choli top, navel, makeup, holding, pirate pistol, lips, pirate gun, black shorts, looking at viewer, dynamic pose, ((asian girl)), action pose, (white skull belt buckle), black dragon tattoo on right shoulder, black dragon tattoo on right arm, ((shoulder tattoo))";
-      const userPrompt = req.query.prompt || "";
+      const basePrompt = req.query.basePrompt || "1girl, shiyang, ((((small breasts)))), (white skull belt buckle, front hair locks, black flat dragon tattoo on right shoulder, black flat dragon tattoo on right arm, red clothes, shoulder tattoo,:1.1), golden jewelry, long hair, earrings, black hair, golden hoop earrings, clothing cutout, ponytail, cleavage cutout, cleavage, bracelet, midriff, cheongsam top, red choli top, navel, makeup, holding, pirate pistol, lips, pirate gun, black shorts, looking at viewer, dynamic pose, ((asian girl)), action pose, (white skull belt buckle), black dragon tattoo on right shoulder, black dragon tattoo on right arm, ((shoulder tattoo))";
+      const userPrompt = req.query.userPrompt || "";
       const weightedUserPrompt = userPrompt ? `(((${userPrompt})))` : ""; // Add triple parentheses for weighting
       const fullPrompt = `${basePrompt}${weightedUserPrompt ? ", " + weightedUserPrompt : ""}`;
 
       console.log(`Generating background with prompt: ${fullPrompt}`);
 
-      const response = await fetch('https://api-inference.huggingface.co/models/LightningWorks/shiyangv1', {
+      const response = await fetch('https://api-inference.huggingface.co/models/LightningWorks/shiyangb1-diffusers', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: fullPrompt
+          inputs: fullPrompt,
+          parameters: {
+            width: 600,
+            height: 600,
+            num_inference_steps: 50,
+            guidance_scale: 7.5
+          }
         }),
         timeout: 50000 // 50 seconds timeout to leverage Vercel Pro's 60-second limit
       });
@@ -51,7 +57,6 @@ module.exports = async (req, res) => {
         return res.status(500).json({ error: `Hugging Face API error: ${response.statusText}, ${errorText}` });
       }
 
-      // Use arrayBuffer instead of buffer for compatibility with node-fetch
       const imageBuffer = await response.arrayBuffer();
       const imageUrl = `data:image/webp;base64,${Buffer.from(imageBuffer).toString('base64')}`;
 
