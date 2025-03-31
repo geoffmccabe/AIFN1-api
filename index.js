@@ -28,10 +28,12 @@ module.exports = async (req, res) => {
       const userPrompt = req.query.userPrompt || "";
       const weightedUserPrompt = userPrompt ? `(((${userPrompt})))` : ""; // Add triple parentheses for weighting
       const fullPrompt = `${basePrompt}${weightedUserPrompt ? ", " + weightedUserPrompt : ""}`;
+      const width = parseInt(req.query.width) || 600;
+      const height = parseInt(req.query.height) || 600;
 
-      console.log(`Generating background with prompt: ${fullPrompt}`);
+      console.log(`Generating background with prompt: ${fullPrompt}, width: ${width}, height: ${height}`);
 
-      const response = await fetch('https://api-inference.huggingface.co/models/LightningWorks/shiyangb1-diffusers', {
+      const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
@@ -40,9 +42,9 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           inputs: fullPrompt,
           parameters: {
-            width: 600,
-            height: 600,
-            num_inference_steps: 50,
+            width: width,
+            height: height,
+            num_inference_steps: 30, // Reduced for faster generation
             guidance_scale: 7.5
           }
         }),
