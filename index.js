@@ -11,13 +11,16 @@ const arweave = Arweave.init({
 });
 
 module.exports = async (req, res) => {
+  console.log('Function invoked:', req.url); // Add logging to confirm invocation
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.url.startsWith('/api/generate-background')) {
     try {
+      console.log('Processing /api/generate-background');
       if (!process.env.HUGGINGFACE_API_KEY) {
+        console.error('HUGGINGFACE_API_KEY is not set');
         return res.status(500).json({ error: 'HUGGINGFACE_API_KEY is not set' });
       }
 
@@ -28,7 +31,9 @@ module.exports = async (req, res) => {
       const width = parseInt(req.query.width) || 600;
       const height = parseInt(req.query.height) || 600;
 
-      const response = await fetch('https://api-inference.huggingface.co/models/LightningWorks/shiyangb1-diffusers', {
+      console.log(`Generating background with prompt: ${fullPrompt}, width: ${width}, height: ${height}`);
+
+      const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
@@ -39,15 +44,17 @@ module.exports = async (req, res) => {
           parameters: {
             width: width,
             height: height,
-            num_inference_steps: 30, // Set to 30 as requested
+            num_inference_steps: 30,
             guidance_scale: 7.5
           }
         }),
-        timeout: 60000 // 60 seconds timeout to accommodate paid account
+        timeout: 60000 // 60 seconds timeout
       });
 
+      console.log('Hugging Face API response status:', response.status);
       if (!response.ok) {
         const errorText = await response.text();
+        console.error(`Hugging Face API error: ${response.statusText}, ${errorText}`);
         return res.status(500).json({ error: `Hugging Face API error: ${response.statusText}, ${errorText}` });
       }
 
@@ -59,10 +66,12 @@ module.exports = async (req, res) => {
         metadata: fullPrompt
       });
     } catch (error) {
+      console.error('Error in /api/generate-background:', error.message, error.stack);
       res.status(500).json({ error: 'Failed to generate background: ' + error.message });
     }
   } else if (req.url === '/api/upload-to-arweave') {
     try {
+      console.log('Processing /api/upload-to-arweave');
       const files = await new Promise((resolve, reject) => {
         upload.array('images')(req, res, (err) => {
           if (err) reject(err);
@@ -75,6 +84,7 @@ module.exports = async (req, res) => {
       }
 
       if (!process.env.ARWEAVE_KEY) {
+        console.error('ARWEAVE_KEY is not set');
         return res.status(500).json({ error: 'ARWEAVE_KEY is not set' });
       }
 
@@ -93,6 +103,7 @@ module.exports = async (req, res) => {
 
       res.status(200).json({ transactionIds });
     } catch (error) {
+      console.error('Error in /api/upload-to-arweave:', error);
       res.status(500).json({ error: 'Failed to upload to Arweave: ' + error.message });
     }
   } else {
