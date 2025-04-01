@@ -16,6 +16,7 @@ module.exports = async (req, res) => {
   }
   console.log('Normalized pathname:', pathname);
 
+  // Set custom headers (moved from vercel.json)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -25,7 +26,7 @@ module.exports = async (req, res) => {
     console.log('Processing /api/test');
     res.status(200).json({
       message: 'Test endpoint working',
-      version: '2023-11-19', // Updated version for debugging
+      version: '2023-11-20', // Updated version for debugging
       timestamp: new Date().toISOString()
     });
     return;
@@ -35,7 +36,7 @@ module.exports = async (req, res) => {
     console.log('Processing /api/generate-background-v2');
     res.status(200).json({
       message: 'Generate background endpoint reached',
-      version: '2023-11-19',
+      version: '2023-11-20',
       timestamp: new Date().toISOString()
     });
     return;
