@@ -24,6 +24,10 @@
       "dest": "/index.js"
     },
     {
+      "src": "/dummy-route", // Added dummy route to force Vercel to reprocess the config
+      "dest": "/index.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.js"
     }
