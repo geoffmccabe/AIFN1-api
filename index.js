@@ -11,7 +11,7 @@ const arweave = Arweave.init({
 });
 
 module.exports = async (req, res) => {
-  console.log('Function invoked:', req.url); // Add logging to confirm invocation
+  console.log('Function invoked:', req.url);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -24,16 +24,18 @@ module.exports = async (req, res) => {
         return res.status(500).json({ error: 'HUGGINGFACE_API_KEY is not set' });
       }
 
-      const basePrompt = req.query.basePrompt || "1girl, shiyang, ((((small breasts)))), (white skull belt buckle, front hair locks, black flat dragon tattoo on right shoulder, black flat dragon tattoo on right arm, red clothes, shoulder tattoo,:1.1), golden jewelry, long hair, earrings, black hair, golden hoop earrings, clothing cutout, ponytail, cleavage cutout, cleavage, bracelet, midriff, cheongsam top, red choli top, navel, makeup, holding, pirate pistol, lips, pirate gun, black shorts, looking at viewer, dynamic pose, ((asian girl)), action pose, (white skull belt buckle), black dragon tattoo on right shoulder, black dragon tattoo on right arm, ((shoulder tattoo))";
+      const basePrompt = req.query.basePrompt || "1girl, shiyang";
       const userPrompt = req.query.userPrompt || "";
       const weightedUserPrompt = userPrompt ? `(((${userPrompt})))` : "";
       const fullPrompt = `${basePrompt}${weightedUserPrompt ? ", " + weightedUserPrompt : ""}`;
       const width = parseInt(req.query.width) || 600;
       const height = parseInt(req.query.height) || 600;
+      const seed = Math.floor(Math.random() * 1000000);
+      const cacheBust = Date.now(); // Add to HF API call to prevent caching
 
-      console.log(`Generating background with prompt: ${fullPrompt}, width: ${width}, height: ${height}`);
+      console.log(`Generating background with prompt: ${fullPrompt}, width: ${width}, height: ${height}, seed: ${seed}, cacheBust: ${cacheBust}`);
 
-      const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev', {
+      const response = await fetch(`https://api-inference.huggingface.com/models/black-forest-labs/FLUX.1-dev?cacheBust=${cacheBust}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
@@ -45,10 +47,11 @@ module.exports = async (req, res) => {
             width: width,
             height: height,
             num_inference_steps: 30,
-            guidance_scale: 7.5
+            guidance_scale: 7.5,
+            seed: seed
           }
         }),
-        timeout: 60000 // 60 seconds timeout
+        timeout: 60000
       });
 
       console.log('Hugging Face API response status:', response.status);
@@ -60,10 +63,13 @@ module.exports = async (req, res) => {
 
       const imageBuffer = await response.arrayBuffer();
       const imageUrl = `data:image/webp;base64,${Buffer.from(imageBuffer).toString('base64')}`;
+      console.log('Image generated successfully, length:', imageUrl.length);
 
       res.status(200).json({
         imageUrl: imageUrl,
-        metadata: fullPrompt
+        metadata: fullPrompt,
+        generatedAt: new Date().toISOString(),
+        version: '2023-11-10' // Add version to confirm deployment
       });
     } catch (error) {
       console.error('Error in /api/generate-background:', error.message, error.stack);
