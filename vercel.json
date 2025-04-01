@@ -9,27 +9,27 @@
   "routes": [
     {
       "src": "/api/test",
-      "dest": "/index.js"
+      "dest": "index.js"
     },
     {
       "src": "/api/generate-background",
-      "dest": "/index.js"
+      "dest": "index.js"
     },
     {
       "src": "/api/generate-background-v2",
-      "dest": "/index.js"
+      "dest": "index.js"
     },
     {
       "src": "/api/upload-to-arweave",
-      "dest": "/index.js"
+      "dest": "index.js"
     },
     {
-      "src": "/dummy-route", // Added dummy route to force Vercel to reprocess the config
-      "dest": "/index.js"
+      "src": "/dummy-route",
+      "dest": "index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.js"
+      "dest": "index.js"
     }
   ],
   "headers": [
