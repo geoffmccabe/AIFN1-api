@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
     console.log('Processing /api/test');
     res.status(200).json({
       message: 'Test endpoint working',
-      version: '2023-11-21', // Updated version for debugging
+      version: '2023-11-21',
       timestamp: new Date().toISOString()
     });
     return;
@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
       const hfResponse = await fetch('https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, // Ensure HF_API_TOKEN is set in Vercel environment variables
+          'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
