@@ -1,21 +1,20 @@
 module.exports = async (req, res) => {
-  console.log('Function invoked:', req.url);
+  console.log('Function invoked with req.url:', req.url);
+  console.log('Full request headers:', req.headers);
 
-  // Extract the pathname more reliably for Vercel
+  // Extract the pathname directly from req.url
   let pathname = req.url.split('?')[0]; // Remove query parameters
-  // Remove any leading "/index.js" or other prefixes Vercel might add
-  if (pathname.includes('/index.js')) {
-    pathname = pathname.split('/index.js')[1] || '/';
-  }
-  // Ensure leading slash and normalize
+  console.log('Initial pathname:', pathname);
+
+  // Normalize the pathname by removing any unexpected prefixes or suffixes
+  pathname = pathname.replace(/^\/index\.js/, ''); // Remove /index.js if present
   if (!pathname.startsWith('/')) {
     pathname = '/' + pathname;
   }
-  // Remove trailing slash for consistency
   if (pathname.endsWith('/') && pathname !== '/') {
     pathname = pathname.slice(0, -1);
   }
-  console.log('Extracted pathname:', pathname);
+  console.log('Normalized pathname:', pathname);
 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
@@ -26,7 +25,7 @@ module.exports = async (req, res) => {
     console.log('Processing /api/test');
     res.status(200).json({
       message: 'Test endpoint working',
-      version: '2023-11-17', // Updated version for debugging
+      version: '2023-11-19', // Updated version for debugging
       timestamp: new Date().toISOString()
     });
     return;
@@ -36,7 +35,7 @@ module.exports = async (req, res) => {
     console.log('Processing /api/generate-background-v2');
     res.status(200).json({
       message: 'Generate background endpoint reached',
-      version: '2023-11-17',
+      version: '2023-11-19',
       timestamp: new Date().toISOString()
     });
     return;
