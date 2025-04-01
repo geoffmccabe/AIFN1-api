@@ -4,12 +4,16 @@ module.exports = async (req, res) => {
   // Extract the pathname more reliably for Vercel
   let pathname = req.url.split('?')[0]; // Remove query parameters
   // Remove any leading "/index.js" or other prefixes Vercel might add
-  if (pathname.startsWith('/index.js')) {
-    pathname = pathname.replace('/index.js', '');
+  if (pathname.includes('/index.js')) {
+    pathname = pathname.split('/index.js')[1] || '/';
   }
   // Ensure leading slash and normalize
   if (!pathname.startsWith('/')) {
     pathname = '/' + pathname;
+  }
+  // Remove trailing slash for consistency
+  if (pathname.endsWith('/') && pathname !== '/') {
+    pathname = pathname.slice(0, -1);
   }
   console.log('Extracted pathname:', pathname);
 
@@ -22,7 +26,7 @@ module.exports = async (req, res) => {
     console.log('Processing /api/test');
     res.status(200).json({
       message: 'Test endpoint working',
-      version: '2023-11-16', // Updated version for debugging
+      version: '2023-11-17', // Updated version for debugging
       timestamp: new Date().toISOString()
     });
     return;
@@ -32,7 +36,7 @@ module.exports = async (req, res) => {
     console.log('Processing /api/generate-background-v2');
     res.status(200).json({
       message: 'Generate background endpoint reached',
-      version: '2023-11-16',
+      version: '2023-11-17',
       timestamp: new Date().toISOString()
     });
     return;
