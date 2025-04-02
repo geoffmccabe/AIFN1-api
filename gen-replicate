@@ -1,0 +1,38 @@
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { prompt, width, height, num_outputs } = req.body;
+
+  try {
+    const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        version: 'da878a514a9828a297c31e2d82f2c7a54a6e55e3a5a4c8a8a4b5e3a5d2f1c2', // Flux.1 [dev]
+        input: {
+          prompt,
+          width,
+          height,
+          num_outputs,
+          num_inference_steps: 28,
+          guidance_scale: 7.5,
+          go_fast: true
+        }
+      })
+    });
+
+    if (!replicateResponse.ok) {
+      throw new Error(`Replicate API error: ${replicateResponse.status}`);
+    }
+
+    const prediction = await replicateResponse.json();
+    res.status(200).json(prediction);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
