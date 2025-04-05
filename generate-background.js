@@ -13,15 +13,29 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { basePrompt, userPrompt, width, height } = req.query;
+  const { basePrompt, userPrompt, width, height, model } = req.query;
 
-  if (!basePrompt || !width || !height) {
+  if (!basePrompt || !width || !height || !model) {
     return res.status(400).json({ error: 'Missing required parameters' });
+  }
+
+  // Map the selected model to its Hugging Face endpoint
+  const modelMap = {
+    flux: 'black-forest-labs/FLUX.1-dev',
+    sdxl: 'stabilityai/stable-diffusion-xl-base-1.0',
+    dreamshaper: 'Lykon/dreamshaper-8',
+    pixart: 'PixArt-alpha/PixArt-XL-2-1024px-aesthetic',
+    anything: 'SG161222/Realistic_Vision_V4.0_noVAE'
+  };
+
+  const selectedModel = modelMap[model];
+  if (!selectedModel) {
+    return res.status(400).json({ error: 'Invalid model selection' });
   }
 
   try {
     const response = await fetch(
-      `https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev`,
+      `https://api-inference.huggingface.co/models/${selectedModel}`,
       {
         method: 'POST',
         headers: {
