@@ -34,8 +34,8 @@ module.exports = async (req, res) => {
     return;
   }
 
-  if (pathname === '/api/generate-background-v2') {
-    console.log('Processing /api/generate-background-v2');
+  if (pathname === '/api/generate-background') {
+    console.log('Processing /api/generate-background');
     try {
       // Extract query parameters
       const url = new URL(req.url, 'https://aifn-1-api-new3.vercel.app');
